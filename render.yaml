@@ -5,6 +5,7 @@ services:
     name: quoteit
     runtime: docker
     plan: free
+    region: frankfurt
     healthCheckPath: /up
     envVars:
       - key: APP_NAME
