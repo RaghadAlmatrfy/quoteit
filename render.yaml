@@ -1,11 +1,13 @@
-# Render Blueprint: creates the "quoteit" web service from this repository.
+# Render Blueprint: creates the "quoteit-sg" web service from this repository.
 # Secret values (sync: false) are typed in the Render dashboard, never saved here.
+# Region: Singapore, the same place as the Supabase database (Southeast Asia),
+# so every database query is a short trip instead of Frankfurt <-> Singapore.
 services:
   - type: web
-    name: quoteit
+    name: quoteit-sg
     runtime: docker
     plan: free
-    region: frankfurt
+    region: singapore
     healthCheckPath: /up
     envVars:
       - key: APP_NAME

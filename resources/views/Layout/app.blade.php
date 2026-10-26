@@ -195,6 +195,7 @@
         'loginFirst' => __('Please log in first'),
         'saved' => __('Saved to favorites'),
         'removed' => __('Removed from favorites'),
+        'notSaved' => __('Could not save. Check your connection and try again.'),
         'translateFailed' => __('Translation is not available right now.'),
     ], JSON_UNESCAPED_UNICODE) !!}
 </script>

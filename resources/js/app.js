@@ -189,7 +189,37 @@ function trackShare(url, type) {
 /* ---------------------------------------------------------------
  * 4 + 5) Like / dislike and favorites without reloading the page
  * ------------------------------------------------------------- */
-document.addEventListener('submit', async (event) => {
+// "My interests" is refreshed a moment after the last click, not after every click
+let interestsTimer;
+function refreshInterestsSoon() {
+    clearTimeout(interestsTimer);
+    interestsTimer = setTimeout(refreshInterests, 1500);
+}
+
+// Each quote saves its clicks one after another, so fast double-clicks stay in order
+const pendingSaves = new WeakMap();
+
+function reactionState(actions) {
+    const state = { reaction: null, likes: 0, dislikes: 0 };
+    actions.querySelectorAll('form[data-ajax="reaction"]').forEach((reactionForm) => {
+        const type = reactionForm.querySelector('input[name="type"]').value;
+        if (reactionForm.querySelector('button').getAttribute('aria-pressed') === 'true') state.reaction = type;
+    });
+    state.likes = Number(actions.querySelector('[data-count="likes"]').textContent) || 0;
+    state.dislikes = Number(actions.querySelector('[data-count="dislikes"]').textContent) || 0;
+    return state;
+}
+
+function showReaction(actions, state) {
+    actions.querySelectorAll('form[data-ajax="reaction"]').forEach((reactionForm) => {
+        const type = reactionForm.querySelector('input[name="type"]').value;
+        reactionForm.querySelector('button').setAttribute('aria-pressed', String(state.reaction === type));
+    });
+    actions.querySelector('[data-count="likes"]').textContent = state.likes;
+    actions.querySelector('[data-count="dislikes"]').textContent = state.dislikes;
+}
+
+document.addEventListener('submit', (event) => {
     const form = event.target.closest('form[data-ajax]');
     if (!form) return;
 
@@ -201,40 +231,52 @@ document.addEventListener('submit', async (event) => {
         return;
     }
 
-    try {
-        const response = await fetch(form.action, {
-            method: 'POST',
-            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
-            body: new FormData(form),
-        });
+    const actions = form.closest('[data-quote-actions]') ?? form;
+    const isReaction = form.dataset.ajax === 'reaction';
+    const button = form.querySelector('button');
 
-        if (response.status === 401) {
-            window.location.href = document.body.dataset.loginUrl;
-            return;
-        }
-        if (!response.ok) throw new Error(response.statusText);
-
-        const data = await response.json();
-        const actions = form.closest('[data-quote-actions]');
-
-        if (form.dataset.ajax === 'reaction') {
-            actions.querySelectorAll('form[data-ajax="reaction"]').forEach((reactionForm) => {
-                const type = reactionForm.querySelector('input[name="type"]').value;
-                reactionForm.querySelector('button').setAttribute('aria-pressed', String(data.reaction === type));
-            });
-            actions.querySelector('[data-count="likes"]').textContent = data.likes;
-            actions.querySelector('[data-count="dislikes"]').textContent = data.dislikes;
-        }
-
-        refreshInterests();
-
-        if (form.dataset.ajax === 'favorite') {
-            form.querySelector('button').setAttribute('aria-pressed', String(data.saved));
-            showToast(data.saved ? i18n.saved : i18n.removed);
-        }
-    } catch {
-        form.submit(); // fall back to a normal page submit
+    // 1) Change the color and the number straight away (no waiting for the server)
+    let before;
+    if (isReaction) {
+        before = reactionState(actions);
+        const type = form.querySelector('input[name="type"]').value;
+        const after = { ...before, reaction: before.reaction === type ? null : type };
+        if (before.reaction) after[before.reaction === 'like' ? 'likes' : 'dislikes'] -= 1;
+        if (after.reaction) after[after.reaction === 'like' ? 'likes' : 'dislikes'] += 1;
+        showReaction(actions, after);
+    } else {
+        before = button.getAttribute('aria-pressed') === 'true';
+        button.setAttribute('aria-pressed', String(!before));
+        showToast(!before ? i18n.saved : i18n.removed);
     }
+
+    // 2) Save in the background; if it fails, put things back as they were
+    const body = new FormData(form);
+    const previous = pendingSaves.get(actions) ?? Promise.resolve();
+    const save = previous.then(async () => {
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body,
+            });
+            if (response.status === 401) return (window.location.href = document.body.dataset.loginUrl);
+            if (!response.ok) throw new Error(response.statusText);
+
+            const data = await response.json();
+            // Only the last click decides what is shown, so the numbers from the server win
+            if (pendingSaves.get(actions) === save) {
+                if (isReaction) showReaction(actions, data);
+                else button.setAttribute('aria-pressed', String(data.saved));
+            }
+            refreshInterestsSoon();
+        } catch {
+            if (isReaction) showReaction(actions, before);
+            else button.setAttribute('aria-pressed', String(before));
+            showToast(i18n.notSaved);
+        }
+    });
+    pendingSaves.set(actions, save);
 });
 
 /* ---------------------------------------------------------------

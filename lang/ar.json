@@ -277,5 +277,6 @@
     ":name added you as a friend": ":name أضافك صديقًا",
     "Send friend request": "أرسل طلب صداقة",
     "Computer Science": "علوم الحاسب",
-    "Human-Computer Interaction": "تفاعل الإنسان مع الحاسب"
+    "Human-Computer Interaction": "تفاعل الإنسان مع الحاسب",
+    "Could not save. Check your connection and try again.": "لم يتم الحفظ. تأكد من اتصالك وحاول مرة أخرى."
 }
