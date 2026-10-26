@@ -36,3 +36,5 @@ services:
         value: stderr
       - key: MEDIA_DISK
         value: uploads
+      - key: SEED_DEMO
+        value: "true"

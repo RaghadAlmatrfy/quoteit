@@ -5,7 +5,7 @@
     New: field color strip, author link, media, and the interactive buttons
     (like, dislike, save, copy link, share) colored by the quote's field.
 --}}
-@props(['quote'])
+@props(['quote', 'openComments' => false])
 
 @php
     $isMine = auth()->check() && $quote->user_id === auth()->id();
@@ -182,6 +182,12 @@
                 <span class="hidden sm:inline">{{ __('Copy link') }}</span>
             </button>
 
+            <button type="button" class="action-btn" data-comments-toggle aria-expanded="false" data-sound="open"
+                aria-label="{{ __('Comments') }}" title="{{ __('Comments') }}">
+                <x-icon name="chat" />
+                <span data-comments-count>{{ $quote->comments_count ?? 0 }}</span>
+            </button>
+
             <button type="button" class="action-btn" data-translate="{{ $quote->content }}" data-sound="tap"
                 aria-label="{{ __('Translate') }}" title="{{ __('Translate') }}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
@@ -196,6 +202,12 @@
                 <x-icon name="share" />
                 <span class="hidden sm:inline">{{ __('Share') }}</span>
             </button>
+        </div>
+
+        {{-- Comments open here --}}
+        <div class="mt-4 border-t border-current/15 pt-4" data-comments data-url="{{ route('comments.index', $quote) }}"
+            @if (! ($openComments ?? false)) hidden @endif @if ($openComments ?? false) data-comments-autoload @endif>
+            <p class="text-sm opacity-70">…</p>
         </div>
         @endif
     </article>

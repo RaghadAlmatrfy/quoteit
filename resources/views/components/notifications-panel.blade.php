@@ -12,6 +12,7 @@
         'friend_accepted' => __(':name accepted your friend request'),
         'message' => __(':name sent you a message'),
         'status_liked' => __(':name liked your status'),
+        'commented' => __(':name commented on your quote'),
     ];
 @endphp
 
@@ -27,7 +28,7 @@
                 $data = $notification->data;
                 $actor = $actors->get($data['actor_id'] ?? 0);
                 $link = match ($data['kind'] ?? '') {
-                    'liked', 'saved' => isset($data['quote_id']) ? route('quotes.show', $data['quote_id']) : route('home'),
+                    'liked', 'saved', 'commented' => isset($data['quote_id']) ? route('quotes.show', $data['quote_id']) : route('home'),
                     'friend_request' => route('friends.index'),
                     'message' => $actor ? route('messages.show', $actor) : route('messages.index'),
                     default => $actor ? route('users.show', $actor) : route('home'),

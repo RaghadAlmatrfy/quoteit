@@ -65,6 +65,11 @@ class Quote extends Model
         return $this->hasMany(Reaction::class);
     }
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
     public function favoritedBy(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
@@ -89,6 +94,7 @@ class Quote extends Model
     public function scopeForCards(Builder $query, ?User $viewer): void
     {
         $query->with('user')
+            ->withCount('comments')
             ->withCount([
                 'reactions as likes_count' => fn (Builder $reaction) => $reaction->where('type', Reaction::Like),
                 'reactions as dislikes_count' => fn (Builder $reaction) => $reaction->where('type', Reaction::Dislike),

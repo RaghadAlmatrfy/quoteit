@@ -904,3 +904,68 @@ document.addEventListener('click', (event) => {
     // Arabic text -> English, any other text -> Arabic (whatever the page language is)
     translateQuote(card, /[\u0600-\u06FF]/.test(button.dataset.translate) ? 'en' : 'ar');
 });
+
+/* ---------------------------------------------------------------
+ * 16) Comments: open under the quote, add and delete without reloading
+ * ------------------------------------------------------------- */
+async function loadComments(box) {
+    try {
+        const html = await (await fetch(box.dataset.url, { headers: { Accept: 'text/html', 'X-Requested-With': 'XMLHttpRequest' } })).text();
+        box.innerHTML = html;
+        updateCommentCount(box);
+    } catch {
+        /* try again when opened next time */
+    }
+}
+
+function updateCommentCount(box) {
+    const count = box.querySelector('[data-comments-list]')?.dataset.count;
+    const counter = box.closest('article')?.querySelector('[data-comments-count]');
+    if (counter && count !== undefined) counter.textContent = count;
+}
+
+document.addEventListener('click', (event) => {
+    const toggle = event.target.closest('[data-comments-toggle]');
+    if (!toggle) return;
+
+    const box = toggle.closest('article').querySelector('[data-comments]');
+    box.hidden = !box.hidden;
+    toggle.setAttribute('aria-expanded', String(!box.hidden));
+    if (!box.hidden) {
+        loadComments(box);
+        setTimeout(() => box.querySelector('textarea')?.focus(), 300);
+    }
+});
+
+document.querySelectorAll('[data-comments-autoload]').forEach(loadComments);
+
+document.addEventListener('submit', async (event) => {
+    const form = event.target.closest('form[data-comment-form]');
+    if (!form) return;
+    event.preventDefault();
+    if (form.dataset.confirm && !confirm(form.dataset.confirm)) return;
+
+    const box = form.closest('[data-comments]');
+    try {
+        const response = await fetch(form.action, {
+            method: 'POST',
+            headers: { Accept: 'text/html', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken },
+            body: new FormData(form),
+        });
+        if (response.status === 401) return (window.location.href = document.body.dataset.loginUrl);
+        if (!response.ok) throw new Error();
+        box.innerHTML = await response.text();
+        updateCommentCount(box);
+    } catch {
+        form.submit();
+    }
+});
+
+// Enter sends the comment, Shift+Enter makes a new line
+document.addEventListener('keydown', (event) => {
+    const textarea = event.target.closest('form[data-comment-form] textarea');
+    if (textarea && event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        textarea.form.requestSubmit();
+    }
+});

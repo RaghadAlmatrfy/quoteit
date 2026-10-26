@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FriendController;
@@ -43,6 +44,7 @@ Route::get('/translate', [TranslationController::class, 'show'])->middleware('th
 
 // Public pages (privacy rules are checked inside the controllers)
 Route::get('/quotes/{quote}', [QuoteController::class, 'show'])->name('quotes.show');
+Route::get('/quotes/{quote}/comments', [CommentController::class, 'index'])->name('comments.index');
 Route::get('/users', [UserController::class, 'index'])->name('users.index');
 Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
 Route::get('/communities', [CommunityController::class, 'index'])->name('communities.index');
@@ -65,6 +67,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/quotes/{quote}/reaction', [ReactionController::class, 'store'])->name('quotes.react');
     Route::post('/quotes/{quote}/favorite', [FavoriteController::class, 'toggle'])->name('quotes.favorite');
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+
+    // Comments
+    Route::post('/quotes/{quote}/comments', [CommentController::class, 'store'])->middleware('throttle:20,1')->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
     // My profile
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');

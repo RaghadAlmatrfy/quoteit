@@ -24,6 +24,8 @@ class InteractionNotification extends Notification
 
     public const StatusLiked = 'status_liked';
 
+    public const Commented = 'commented';
+
     public function __construct(
         public string $kind,
         public User $actor,
