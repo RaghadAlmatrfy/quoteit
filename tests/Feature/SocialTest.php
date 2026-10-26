@@ -82,6 +82,14 @@ test('the language can be switched to Arabic', function () {
     $this->get('/')->assertSee('dir="rtl"', false)->assertSee('اقتباسات طويق');
 });
 
+test('the language switches on the same page without a redirect', function () {
+    $this->get('/communities?lang=ar')->assertOk()->assertSee('dir="rtl"', false)->assertCookie('locale', 'ar', false);
+
+    $this->get('/communities')->assertSee('dir="rtl"', false);
+
+    $this->get('/?lang=en')->assertOk()->assertSee('dir="ltr"', false);
+});
+
 test('Arabic counts use the right plural form', function () {
     app()->setLocale('ar');
 

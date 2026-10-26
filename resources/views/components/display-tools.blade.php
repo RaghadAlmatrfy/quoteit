@@ -28,7 +28,7 @@
         </span>
     </button>
 
-    <a href="{{ route('locale', app()->getLocale() === 'ar' ? 'en' : 'ar') }}" class="tool-btn" data-sound="open"
+    <a href="{{ request()->fullUrlWithQuery(['lang' => app()->getLocale() === 'ar' ? 'en' : 'ar']) }}" class="tool-btn" data-sound="open"
         lang="{{ app()->getLocale() === 'ar' ? 'en' : 'ar' }}"
         data-tip="{{ __('Change language') }}">{{ app()->getLocale() === 'ar' ? 'EN' : 'ع' }}</a>
 
