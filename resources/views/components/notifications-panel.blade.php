@@ -10,6 +10,7 @@
         'saved' => __(':name saved your quote'),
         'friend_request' => __(':name sent you a friend request'),
         'friend_accepted' => __(':name accepted your friend request'),
+        'friend_added' => __(':name added you as a friend'),
         'message' => __(':name sent you a message'),
         'status_liked' => __(':name liked your status'),
         'commented' => __(':name commented on your quote'),

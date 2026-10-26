@@ -25,9 +25,20 @@ test('friends can see a private account', function () {
     $this->actingAs($friend)->get("/users/{$private->username}")->assertSee('Secret insight');
 });
 
-test('a friend request can be sent and accepted', function () {
+test('adding a public account makes you friends straight away', function () {
     $sara = User::factory()->create();
-    $noura = User::factory()->create();
+    $noura = User::factory()->create(['is_private' => false]);
+
+    $this->actingAs($sara)->post("/users/{$noura->username}/friend")->assertRedirect();
+
+    expect(Friendship::first()->status)->toBe(Friendship::Accepted)
+        ->and($sara->isFriendsWith($noura))->toBeTrue()
+        ->and($noura->notifications()->first()->data['kind'])->toBe('friend_added');
+});
+
+test('a private account must accept the friend request first', function () {
+    $sara = User::factory()->create();
+    $noura = User::factory()->private()->create();
 
     $this->actingAs($sara)->post("/users/{$noura->username}/friend")->assertRedirect();
     $friendship = Friendship::first();

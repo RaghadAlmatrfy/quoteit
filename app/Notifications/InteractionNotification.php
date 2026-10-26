@@ -20,6 +20,8 @@ class InteractionNotification extends Notification
 
     public const FriendAccepted = 'friend_accepted';
 
+    public const FriendAdded = 'friend_added';
+
     public const Message = 'message';
 
     public const StatusLiked = 'status_liked';

@@ -106,22 +106,24 @@
             class="rounded-full p-1 text-ink-muted hover:bg-tile hover:text-ink"><x-icon name="close" /></button>
     </div>
     <div class="grid grid-cols-4 gap-2">
-        <a class="share-option" data-share-target="x" target="_blank" rel="noopener"><span style="background:#111">
-                <x-icon name="x-letter" /></span><span>X</span></a>
-        <a class="share-option" data-share-target="whatsapp" target="_blank" rel="noopener"><span style="background:#1f9d55">
-                <x-icon name="chat" /></span><span>WhatsApp</span></a>
-        <a class="share-option" data-share-target="telegram" target="_blank" rel="noopener"><span style="background:#2b8ac6">
-                <x-icon name="send" /></span><span>Telegram</span></a>
-        <a class="share-option" data-share-target="linkedin" target="_blank" rel="noopener"><span style="background:#0a66c2">
-                <x-icon name="briefcase" /></span><span>LinkedIn</span></a>
-        <a class="share-option" data-share-target="facebook" target="_blank" rel="noopener"><span style="background:#3b5998">
-                <x-icon name="users" /></span><span>Facebook</span></a>
-        <a class="share-option" data-share-target="tiktok" target="_blank" rel="noopener"><span style="background:#222">
-                <x-icon name="music" /></span><span>TikTok</span></a>
-        <a class="share-option" data-share-target="snapchat" target="_blank" rel="noopener"><span style="background:#d9b300">
-                <x-icon name="camera" /></span><span>Snapchat</span></a>
-        <a class="share-option" data-share-target="email"><span style="background:#7f626d">
-                <x-icon name="mail" /></span><span>{{ __('Email') }}</span></a>
+        <a class="share-option" data-share-target="x" target="_blank" rel="noopener"><span class="app-logo" style="background:#000">
+                <x-brand-icon name="x" class="h-5 w-5" /></span><span>X</span></a>
+        <a class="share-option" data-share-target="whatsapp" target="_blank" rel="noopener"><span class="app-logo" style="background:linear-gradient(180deg,#5FFC7B,#28D146)">
+                <x-brand-icon name="whatsapp" class="h-7 w-7" /></span><span>WhatsApp</span></a>
+        <a class="share-option" data-share-target="telegram" target="_blank" rel="noopener"><span class="app-logo" style="background:#fff">
+                <x-brand-icon name="telegram" class="h-9 w-9 text-[#2AABEE]" /></span><span>Telegram</span></a>
+        <a class="share-option" data-share-target="linkedin" target="_blank" rel="noopener"><span class="app-logo" style="background:#0A66C2">
+                <x-brand-icon name="linkedin" class="h-6 w-6" /></span><span>LinkedIn</span></a>
+        <a class="share-option" data-share-target="facebook" target="_blank" rel="noopener"><span class="app-logo" style="background:#0866FF">
+                <x-brand-icon name="facebook" class="h-7 w-7 translate-y-1" /></span><span>Facebook</span></a>
+        <a class="share-option" data-share-target="tiktok" target="_blank" rel="noopener"><span class="app-logo tiktok-logo" style="background:#000">
+                <x-brand-icon name="tiktok" class="h-6 w-6 text-[#25F4EE]" />
+                <x-brand-icon name="tiktok" class="h-6 w-6 text-[#FE2C55]" />
+                <x-brand-icon name="tiktok" class="h-6 w-6 text-white" /></span><span>TikTok</span></a>
+        <a class="share-option" data-share-target="snapchat" target="_blank" rel="noopener"><span class="app-logo snap-logo" style="background:#FFFC00">
+                <x-brand-icon name="snapchat" class="h-7 w-7" /></span><span>Snapchat</span></a>
+        <a class="share-option" data-share-target="email"><span class="app-logo" style="background:linear-gradient(180deg,#1E9BFF,#0A60E0)">
+                <x-brand-icon name="email" class="h-6 w-6" /></span><span>{{ __('Email') }}</span></a>
         <button type="button" class="share-option" data-share-target="copy"><span style="background:#432a80">
                 <x-icon name="link" /></span><span>{{ __('Copy link') }}</span></button>
         <button type="button" class="share-option" data-share-target="native" hidden><span style="background:#53398f">

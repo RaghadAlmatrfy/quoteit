@@ -27,7 +27,9 @@ class FriendController extends Controller
     }
 
     /**
-     * Send a friend request (or accept theirs if they already sent one).
+     * Add a friend. Public accounts become friends straight away;
+     * private accounts get a request they have to accept.
+     * (If they already sent me a request, this accepts it.)
      */
     public function store(User $user): RedirectResponse
     {
@@ -35,6 +37,13 @@ class FriendController extends Controller
         abort_if($me->is($user), 422);
 
         $existing = $me->friendshipWith($user);
+
+        if ($existing === null && ! $user->is_private) {
+            Friendship::create(['requester_id' => $me->id, 'addressee_id' => $user->id, 'status' => Friendship::Accepted]);
+            InteractionNotification::send($user, InteractionNotification::FriendAdded, $me);
+
+            return redirect()->back()->with('status', __('You are now friends.'));
+        }
 
         if ($existing === null) {
             Friendship::create(['requester_id' => $me->id, 'addressee_id' => $user->id]);

@@ -1,16 +1,7 @@
-{{-- Floating "+" button and the pop-up form to share a quote (camp design + field + media) --}}
+{{-- The pop-up form (opened from "New quote" in the side bar) to share a quote (camp design + field + media) --}}
 @props(['field' => null])
 
 @auth
-    {{-- Floating "+" button --}}
-    <button type="button" popovertarget="quote-popup" aria-label="{{ __('Share a quote') }}" data-sound="open" data-tour="compose"
-        class="fixed bottom-8 right-32 z-40 hidden h-16 w-16 items-center lg:flex justify-center rounded-full bg-tuwaiq-purple text-white shadow-xl transition hover:scale-110 hover:bg-tuwaiq-purple-light focus:outline-none focus-visible:ring-4 focus-visible:ring-tuwaiq-purple/30">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-            stroke="currentColor" class="h-8 w-8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-    </button>
-
     {{-- Pop-up form --}}
     <div id="quote-popup" popover
         class="m-auto max-h-[92vh] w-[92%] max-w-xl overflow-y-auto rounded-3xl bg-white p-0 shadow-2xl backdrop:bg-black/40 backdrop:backdrop-blur-sm">

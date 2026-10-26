@@ -8,7 +8,7 @@
                 <form method="POST" action="{{ route('friends.store', $user) }}">
                     @csrf
                     <button type="submit" class="panel-btn" data-burst data-sound="like">
-                        <x-icon name="user-plus" class="h-4 w-4" /> {{ __('Add friend') }}
+                        <x-icon name="user-plus" class="h-4 w-4" /> {{ $user->is_private ? __('Send friend request') : __('Add friend') }}
                     </button>
                 </form>
             @elseif ($friendship->status === \App\Models\Friendship::Pending && $friendship->addressee_id === auth()->id())

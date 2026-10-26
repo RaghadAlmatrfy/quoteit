@@ -4,7 +4,7 @@
 @source '../../storage/framework/views/*.php';
 @source '../../app/Enums/*.php';
 /* Field colors are written dynamically (bg-{{ $field->color() }}), so list them here */
-@source inline("{,has-checked:}{bg,border}-{midnight-orchid,dusky-lilac,iris-mist,plum-blossom,silver-wisteria,tuwaiq-teal}");
+@source inline("{,has-checked:}{bg,border}-{midnight-orchid,dusky-lilac,iris-mist,plum-blossom,silver-wisteria,tuwaiq-teal,royal-ink,blush-rose}");
 @source inline("has-checked:text-{white,midnight-orchid}");
 
 @theme {
@@ -25,6 +25,8 @@
     --color-iris-mist: #a6aac8;         /* Cloud Computing */
     --color-plum-blossom: #d7c5d8;      /* Cybersecurity */
     --color-silver-wisteria: #dad4df;   /* Software Engineering */
+    --color-royal-ink: #4b3b86;         /* Computer Science */
+    --color-blush-rose: #e9c2d3;        /* Human-Computer Interaction */
 
     /*
      * New: Light / Dark colors for the NEW parts (panels, menus, new pages).
@@ -152,7 +154,26 @@
         @apply flex flex-col items-center gap-1.5 rounded-2xl p-2 text-xs font-medium text-ink transition hover:bg-tile;
     }
     .share-option span:first-child {
-        @apply flex h-11 w-11 items-center justify-center rounded-full text-white shadow;
+        @apply flex h-12 w-12 items-center justify-center rounded-full text-white shadow;
+    }
+    /* Real app logos: rounded squares like phone app icons */
+    .share-option span.app-logo {
+        @apply relative overflow-hidden rounded-[0.9rem] ring-1 ring-black/10;
+    }
+    .tiktok-logo svg {
+        position: absolute;
+    }
+    .tiktok-logo svg:nth-child(1) {
+        transform: translate(-1.5px, -1.5px);
+    }
+    .tiktok-logo svg:nth-child(2) {
+        transform: translate(1.5px, 1.5px);
+    }
+    .snap-logo svg {
+        stroke: #000;
+        stroke-width: 28px;
+        paint-order: stroke;
+        overflow: visible;
     }
 }
 

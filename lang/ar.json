@@ -273,5 +273,9 @@
     "results": "نتيجة",
     "to": "إلى",
     "to add a comment.": "لإضافة تعليق.",
-    "views": "مشاهدة"
+    "views": "مشاهدة",
+    ":name added you as a friend": ":name أضافك صديقًا",
+    "Send friend request": "أرسل طلب صداقة",
+    "Computer Science": "علوم الحاسب",
+    "Human-Computer Interaction": "تفاعل الإنسان مع الحاسب"
 }

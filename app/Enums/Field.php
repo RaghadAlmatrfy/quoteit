@@ -15,6 +15,8 @@ enum Field: string
     case Cloud = 'cloud';
     case Security = 'security';
     case Software = 'software';
+    case ComputerScience = 'cs';
+    case Hci = 'hci';
 
     /** Translated name, e.g. "Artificial Intelligence" / "الذكاء الاصطناعي". */
     public function label(): string
@@ -26,6 +28,8 @@ enum Field: string
             self::Cloud => 'Cloud Computing',
             self::Security => 'Cybersecurity',
             self::Software => 'Software Engineering',
+            self::ComputerScience => 'Computer Science',
+            self::Hci => 'Human-Computer Interaction',
         });
     }
 
@@ -39,13 +43,15 @@ enum Field: string
             self::Cloud => 'iris-mist',
             self::Security => 'plum-blossom',
             self::Software => 'silver-wisteria',
+            self::ComputerScience => 'royal-ink',
+            self::Hci => 'blush-rose',
         };
     }
 
     /** True when the field color is dark, so the text on it must be white. */
     public function isDark(): bool
     {
-        return in_array($this, [self::Ai, self::Data], true);
+        return in_array($this, [self::Ai, self::Data, self::ComputerScience], true);
     }
 
     /** @return array<int, string> */

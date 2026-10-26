@@ -30,8 +30,8 @@ class DatabaseSeeder extends Seeder
             'interests' => ['general', 'software', 'data', 'ai'],
         ]);
 
-        // The 17 demo people (with quotes, comments, likes, statuses)
-        $this->call(DemoContentSeeder::class);
+        // The demo people (with quotes, comments, likes, friendships) and their statuses
+        $this->call([DemoContentSeeder::class, MoreDemoContentSeeder::class, DemoStatusesSeeder::class]);
         $users = User::whereKeyNot($raghad->id)->get();
 
         // My own quotes, a draft and a scheduled quote
@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
                 if ($user->id !== $quote->user_id) {
                     Reaction::firstOrCreate(
                         ['user_id' => $user->id, 'quote_id' => $quote->id],
-                        ['type' => fake()->boolean(88) ? Reaction::Like : Reaction::Dislike],
+                        ['type' => random_int(1, 100) <= 88 ? Reaction::Like : Reaction::Dislike],
                     );
                 }
             }

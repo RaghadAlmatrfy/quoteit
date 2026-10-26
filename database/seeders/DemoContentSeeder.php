@@ -12,11 +12,12 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 /**
- * Demo people with technical quotes, comments, likes, friendships and statuses,
+ * Demo people with technical quotes, comments, likes and friendships,
  * so the site does not look empty.
  *
  * SAFE FOR THE LIVE SITE: every demo account gets a long random password that nobody knows,
- * so nobody can log in as these people. Running it twice does nothing the second time.
+ * so nobody can log in as these people. Every part checks first, so running it again
+ * only adds what is missing (it never makes copies).
  *
  *   php artisan db:seed --class=DemoContentSeeder --force
  */
@@ -24,10 +25,6 @@ class DemoContentSeeder extends Seeder
 {
     public function run(): void
     {
-        if (User::where('email', 'walaif@example.com')->exists()) {
-            return; // already added
-        }
-
         // [name, username, specialty, interests, private?, quotes]
         $people = [
             ['ولايف الطويرقي', 'walaif', 'ai', ['ai', 'data'], false, [
@@ -88,41 +85,44 @@ class DemoContentSeeder extends Seeder
         $users = collect();
 
         foreach ($people as [$name, $username, $specialty, $interests, $isPrivate, $quotes]) {
-            $user = User::create([
+            $user = User::firstOrCreate(['email' => $username.'@example.com'], [
                 'name' => $name,
                 'username' => $username,
-                'email' => $username.'@example.com',
                 'password' => Str::random(40),
                 'specialty' => Field::from($specialty),
                 'interests' => $interests,
                 'is_private' => $isPrivate,
             ]);
 
-            foreach ($quotes as $content) {
-                $user->quotes()->create(['content' => $content, 'field' => $specialty, 'published_at' => now()->subMinutes(random_int(60, 3000))]);
+            if ($user->wasRecentlyCreated) {
+                foreach ($quotes as $content) {
+                    $user->quotes()->create(['content' => $content, 'field' => $specialty, 'published_at' => now()->subMinutes(random_int(60, 3000))]);
+                }
             }
 
             $users->put($username, $user);
         }
 
+        $demoIds = $users->pluck('id');
+
         // General tech quotes (the community for everyone interested in technology)
-        $users['mishal']->quotes()->create(['content' => 'أفضل طريقة لتعلّم التقنية: ابنِ مشروعًا صغيرًا كل أسبوع.', 'field' => 'general', 'published_at' => now()->subMinutes(30)]);
-        $users['noha']->quotes()->create(['content' => 'Git يحفظ تاريخ مشروعك كله، فلا تخف من التجربة.', 'field' => 'general', 'published_at' => now()->subMinutes(45)]);
+        $users['mishal']->quotes()->firstOrCreate(['content' => 'أفضل طريقة لتعلّم التقنية: ابنِ مشروعًا صغيرًا كل أسبوع.'], ['field' => 'general', 'published_at' => now()->subMinutes(30)]);
+        $users['noha']->quotes()->firstOrCreate(['content' => 'Git يحفظ تاريخ مشروعك كله، فلا تخف من التجربة.'], ['field' => 'general', 'published_at' => now()->subMinutes(45)]);
 
         // A styled quote
-        $users['remas']->quotes()->create([
-            'content' => 'البيانات هي النفط الجديد، لكنها تحتاج إلى تكرير قبل الاستخدام.',
+        $users['remas']->quotes()->firstOrCreate(['content' => 'البيانات هي النفط الجديد، لكنها تحتاج إلى تكرير قبل الاستخدام.'], [
             'field' => 'data', 'font' => 'amiri', 'font_size' => 'xl', 'is_bold' => true,
             'text_align' => 'center', 'bg_color' => '#ae96f2', 'published_at' => now()->subMinutes(2),
         ]);
 
-        // Likes and dislikes between them
-        foreach (Quote::whereIn('user_id', $users->pluck('id'))->get() as $quote) {
+        // Likes and dislikes between them (only once)
+        $alreadyReacted = Reaction::whereIn('user_id', $demoIds)->exists();
+        foreach ($alreadyReacted ? [] : Quote::whereIn('user_id', $demoIds)->get() as $quote) {
             foreach ($users->random(5) as $user) {
                 if ($user->id !== $quote->user_id) {
                     Reaction::firstOrCreate(
                         ['user_id' => $user->id, 'quote_id' => $quote->id],
-                        ['type' => fake()->boolean(88) ? Reaction::Like : Reaction::Dislike],
+                        ['type' => random_int(1, 100) <= 88 ? Reaction::Like : Reaction::Dislike],
                     );
                 }
             }
@@ -139,21 +139,17 @@ class DemoContentSeeder extends Seeder
             ['mishal', 'jumanah', 'بديت أطبقها، شكرًا!'],
             ['mohammed', 'remas', 'عشان كذا لازم نتأكد من المعلومة دائمًا.'],
         ];
-        foreach ($comments as [$author, $commenter, $body]) {
+        $alreadyCommented = Comment::whereIn('user_id', $demoIds)->exists();
+        foreach ($alreadyCommented ? [] : $comments as [$author, $commenter, $body]) {
             $quote = $users[$author]->quotes()->first();
             Comment::create(['quote_id' => $quote->id, 'user_id' => $users[$commenter]->id, 'body' => $body]);
         }
 
         // Some friendships between them
         foreach ([['wajd', 'mai'], ['wajd', 'amirah'], ['walaif', 'ghala'], ['khalid', 'ziyad'], ['asrar', 'mai'], ['noha', 'jumanah']] as [$first, $second]) {
-            Friendship::create(['requester_id' => $users[$first]->id, 'addressee_id' => $users[$second]->id, 'status' => Friendship::Accepted]);
+            Friendship::firstOrCreate(['requester_id' => $users[$first]->id, 'addressee_id' => $users[$second]->id], ['status' => Friendship::Accepted]);
         }
 
-        // Temporary statuses (24 hours)
-        $users['walaif']->statuses()->create(['body' => 'أذاكر الـ Transformers اليوم!', 'bg_color' => '#6f3dbf', 'expires_at' => now()->addHours(20)]);
-        $users['walaif']->statuses()->create(['body' => 'نصيحة: اقرأ التوثيق أولًا.', 'bg_color' => '#4fc9b0', 'expires_at' => now()->addHours(22)]);
-        $users['danah']->statuses()->create(['body' => 'أول تطبيق لي على السحابة', 'bg_color' => '#2c2133', 'expires_at' => now()->addHours(23)]);
-        $users['wajd']->statuses()->create(['body' => 'خلصت داشبورد Power BI جديدة', 'bg_color' => '#f2a54a', 'expires_at' => now()->addHours(12)]);
-        $users['mai']->statuses()->create(['body' => 'حالة لأصدقائي فقط', 'bg_color' => '#2c2133', 'visibility' => 'friends', 'expires_at' => now()->addHours(10)]);
+        // Temporary statuses come from DemoStatusesSeeder
     }
 }
