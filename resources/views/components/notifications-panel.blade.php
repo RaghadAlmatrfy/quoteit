@@ -1,9 +1,7 @@
 {{-- New: notifications bell — people who interacted with me --}}
 @php
     $me = auth()->user();
-    $notifications = $me->notifications()->latest()->limit(15)->get();
-    $unreadCount = $me->unreadNotifications()->count();
-    $actors = \App\Models\User::whereIn('id', $notifications->pluck('data.actor_id')->filter()->unique())->get()->keyBy('id');
+    ['notifications' => $notifications, 'unreadCount' => $unreadCount, 'actors' => $actors] = \App\Support\NotificationFeed::for($me);
 
     $texts = [
         'liked' => __(':name liked your quote'),

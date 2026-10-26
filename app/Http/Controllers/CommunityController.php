@@ -17,19 +17,23 @@ class CommunityController extends Controller
     {
         $viewer = Auth::user();
 
+        // Two small queries for all the numbers (fast even with a far-away database)
+        $quotesPerField = Quote::visibleTo($viewer)->toBase()->selectRaw('field, count(*) as total')->groupBy('field')->pluck('total', 'field');
+        $people = User::query()->get(['specialty', 'interests']);
+
         $communities = collect(Field::cases())->map(fn (Field $field) => [
             'field' => $field,
-            'quotes' => Quote::visibleTo($viewer)->where('field', $field)->count(),
+            'quotes' => (int) ($quotesPerField[$field->value] ?? 0),
             // everyone is a member of "General Tech"
             'members' => $field === Field::General
-                ? User::count()
-                : User::where('specialty', $field)->orWhereJsonContains('interests', $field->value)->count(),
+                ? $people->count()
+                : $people->filter(fn (User $user) => $user->specialty === $field || in_array($field->value, $user->interests ?? [], true))->count(),
         ]);
 
         return view('communities.index', [
             'communities' => $communities,
-            'allQuotes' => Quote::visibleTo($viewer)->count(),
-            'allMembers' => User::count(),
+            'allQuotes' => (int) $quotesPerField->sum(),
+            'allMembers' => $people->count(),
             'page' => 'Communities',
         ]);
     }
