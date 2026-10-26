@@ -1,0 +1,14 @@
+.git
+.env
+node_modules
+vendor
+public/build
+public/hot
+public/uploads/*
+!public/uploads/.gitignore
+database/database.sqlite
+storage/logs/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/framework/cache/data/*
+tests

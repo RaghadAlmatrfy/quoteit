@@ -1,0 +1,37 @@
+# Render Blueprint: creates the "quoteit" web service from this repository.
+# Secret values (sync: false) are typed in the Render dashboard, never saved here.
+services:
+  - type: web
+    name: quoteit
+    runtime: docker
+    plan: free
+    healthCheckPath: /up
+    envVars:
+      - key: APP_NAME
+        value: "Tuwaiq Quotes"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: APP_LOCALE
+        value: ar
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        sync: false
+      - key: DB_SSLMODE
+        value: require
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: MEDIA_DISK
+        value: uploads
