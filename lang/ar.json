@@ -278,5 +278,7 @@
     "Send friend request": "أرسل طلب صداقة",
     "Computer Science": "علوم الحاسب",
     "Human-Computer Interaction": "تفاعل الإنسان مع الحاسب",
-    "Could not save. Check your connection and try again.": "لم يتم الحفظ. تأكد من اتصالك وحاول مرة أخرى."
+    "Could not save. Check your connection and try again.": "لم يتم الحفظ. تأكد من اتصالك وحاول مرة أخرى.",
+    "Default (Amiri)": "الافتراضي (Amiri)",
+    "Comment font": "خط التعليق"
 }

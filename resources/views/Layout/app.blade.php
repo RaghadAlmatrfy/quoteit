@@ -21,18 +21,31 @@
     {{-- Fonts you can choose for a quote (Arabic + English) --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Reem+Kufi:wght@400;700&family=Tajawal:wght@400;700&display=swap">
+    {{-- Amiri is the site font, so it loads first; the other quote fonts load without slowing the page --}}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&display=swap">
+    <link rel="stylesheet" media="print" onload="this.media='all'"
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Reem+Kufi:wght@400;700&family=Tajawal:wght@400;700&display=swap">
+
+    {{-- Speed: when the mouse rests on a link, the browser prepares that page in advance,
+         so opening it is instant (Chrome / Edge). Other browsers use the small script in app.js. --}}
+    <script type="speculationrules">
+        {
+            "prerender": [{
+                "where": { "and": [
+                    { "href_matches": "/*" },
+                    { "not": { "selector_matches": "[target=_blank], [data-no-prefetch], a[href*='lang='], a[href*='/locale/'], a[href*='logout']" } }
+                ] },
+                "eagerness": "moderate"
+            }]
+        }
+    </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body
-    class="flex min-h-screen flex-col bg-center bg-fixed bg-no-repeat pb-20 lg:pb-0"
-    style="
-        background-image: url('{{ asset('images/background.png') }}');
-        background-size: cover;
-    "
+    class="site-bg flex min-h-screen flex-col pb-20 lg:pb-0"
+    style="--site-bg: url('{{ asset('images/background.webp') }}')"
     data-auth="{{ auth()->check() ? 'true' : 'false' }}"
     @auth data-user-name="{{ auth()->user()->name }}" data-user-email="{{ auth()->user()->email }}" @endauth
     data-login-url="{{ route('login') }}"
@@ -65,7 +78,7 @@
 <div id="splash" class="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm is-hidden"
     role="dialog" aria-modal="true" aria-labelledby="splash-title">
     <div class="splash-card w-full max-w-md rounded-3xl border border-line bg-panel p-8 text-center text-ink shadow-2xl">
-        <img src="{{ asset('images/logo.png') }}" alt="" class="mx-auto h-16 w-auto">
+        <img src="{{ asset('images/logo.webp') }}" alt="" class="mx-auto h-16 w-auto">
         <h1 id="splash-title" class="mt-5 text-3xl font-bold">{{ __('Welcome to Tuwaiq Quotes') }}</h1>
         <p class="mt-2 text-ink-muted" data-splash-greeting
             data-greeting-back="{{ __('Welcome back, :name', ['name' => '__NAME__']) }}"

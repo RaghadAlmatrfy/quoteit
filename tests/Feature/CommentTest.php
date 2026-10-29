@@ -55,3 +55,15 @@ test('the demo people are safe for the live site: unknown passwords, added only 
         ->and(Comment::count())->toBeGreaterThan(0)
         ->and(Hash::check('password', User::first()->password))->toBeFalse();
 });
+
+test('the commenter can choose a font for their comment', function () {
+    $quote = Quote::factory()->create();
+    $sara = User::factory()->create();
+
+    $this->actingAs($sara)->post("/quotes/{$quote->id}/comments", ['body' => 'خط جميل', 'font' => 'cairo'])->assertRedirect();
+    expect(Comment::first()->font)->toBe('cairo');
+
+    $this->get("/quotes/{$quote->id}/comments")->assertSee('font-family: &#039;Cairo&#039;', false);
+
+    $this->actingAs($sara)->post("/quotes/{$quote->id}/comments", ['body' => 'x', 'font' => 'comic-sans'])->assertSessionHasErrors('font');
+});

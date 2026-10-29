@@ -12,7 +12,7 @@
                     <a href="{{ route('users.show', $comment->user) }}" class="font-semibold hover:underline">{{ $comment->user->name }}</a>
                     <span class="opacity-60">{{ $comment->created_at->diffForHumans() }}</span>
                 </p>
-                <p class="mt-0.5 text-sm whitespace-pre-line" dir="auto">{{ $comment->body }}</p>
+                <p class="mt-0.5 text-base whitespace-pre-line" dir="auto" @if ($comment->fontFamily()) style="font-family: {{ $comment->fontFamily() }}" @endif>{{ $comment->body }}</p>
             </div>
             @if ($comment->canBeDeletedBy(auth()->user()))
                 <form method="POST" action="{{ route('comments.destroy', $comment) }}" data-comment-form
@@ -36,7 +36,18 @@
                 <textarea name="body" rows="1" required maxlength="300" dir="auto"
                     class="w-full resize-none rounded-2xl border border-current/20 bg-white/80 px-3 py-2 text-sm text-tuwaiq-purple placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-tuwaiq-orange"
                     placeholder="{{ __('Write a comment…') }}"></textarea>
-                <p class="mt-0.5 text-xs opacity-70">{{ __('Up to 300 characters.') }}</p>
+                <div class="mt-1 flex flex-wrap items-center gap-2 text-xs">
+                    <label class="flex items-center gap-1">
+                        <span class="opacity-80">{{ __('Font') }}</span>
+                        <select name="font" data-comment-font aria-label="{{ __('Comment font') }}"
+                            class="rounded-full border border-current/20 bg-white/80 px-2 py-0.5 text-xs text-tuwaiq-purple focus:outline-none focus:ring-2 focus:ring-tuwaiq-orange">
+                            @foreach (\App\Support\QuoteStyle::Fonts as $key => $option)
+                                <option value="{{ $key }}" style="font-family: {{ $option['family'] }}">{{ __($option['label']) }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                    <span class="opacity-70">{{ __('Up to 300 characters.') }}</span>
+                </div>
             </div>
             <button type="submit" class="rounded-full bg-tuwaiq-orange p-2 text-tuwaiq-purple shadow hover:opacity-90"
                 aria-label="{{ __('Send') }}" data-sound="send" data-burst><x-icon name="send" class="h-4 w-4 rtl:-scale-x-100" /></button>

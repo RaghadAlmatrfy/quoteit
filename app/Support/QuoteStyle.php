@@ -9,7 +9,7 @@ class QuoteStyle
 {
     /** @var array<string, array{label: string, family: string}> */
     public const Fonts = [
-        'default' => ['label' => 'Default', 'family' => "'Instrument Sans', ui-sans-serif, system-ui, sans-serif"],
+        'default' => ['label' => 'Default (Amiri)', 'family' => "'Amiri', serif"],
         'tajawal' => ['label' => 'Tajawal', 'family' => "'Tajawal', sans-serif"],
         'cairo' => ['label' => 'Cairo', 'family' => "'Cairo', sans-serif"],
         'amiri' => ['label' => 'Amiri', 'family' => "'Amiri', serif"],

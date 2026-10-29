@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use App\Models\Quote;
 use App\Notifications\InteractionNotification;
+use App\Support\QuoteStyle;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Validation\Rule;
 
 class CommentController extends Controller
 {
@@ -30,9 +32,12 @@ class CommentController extends Controller
     {
         abort_unless($quote->isVisibleTo(Auth::user()) && $quote->isLive(), 403);
 
-        $data = $request->validate(['body' => ['required', 'string', 'min:1', 'max:300']]);
+        $data = $request->validate([
+            'body' => ['required', 'string', 'min:1', 'max:300'],
+            'font' => ['nullable', Rule::in(array_keys(QuoteStyle::Fonts))],
+        ]);
 
-        $quote->comments()->create(['user_id' => Auth::id(), 'body' => $data['body']]);
+        $quote->comments()->create(['user_id' => Auth::id(), 'body' => $data['body'], 'font' => $data['font'] ?? null]);
         InteractionNotification::send($quote->user, InteractionNotification::Commented, Auth::user(), $quote);
 
         return $request->expectsJson() || $request->ajax()

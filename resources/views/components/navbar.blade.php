@@ -40,7 +40,7 @@
         @endif
 
         <li class="ms-auto"><x-display-tools /></li>
-        <li><img src="{{ asset('images/logo.png') }}" class=" h-12 w-auto sm:h-16" alt="Logo"></li>
+        <li><img src="{{ asset('images/logo.webp') }}" class=" h-12 w-auto sm:h-16" alt="Logo"></li>
     </ul>
 </nav>
 
@@ -48,7 +48,7 @@
 @unless (in_array($page, ['Sign Up', 'Log In'], true))
     <aside class="tool-rail fixed top-0 right-0 z-50 hidden h-screen w-24 flex-col items-center gap-4 overflow-y-auto border-l border-white/20 bg-[#10081F]/95 py-4 shadow-xl backdrop-blur-md lg:flex"
         aria-label="{{ __('Account and display') }}">
-        <img src="{{ asset('images/logo.png') }}" class="w-20 rounded-lg" alt="Logo">
+        <img src="{{ asset('images/logo.webp') }}" class="w-20 rounded-lg" alt="Logo">
         <a href="{{ route('home') }}" class="site-name-rail" aria-label="QuoteIt">QuoteIt</a>
 
         @auth

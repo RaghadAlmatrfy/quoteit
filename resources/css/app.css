@@ -8,7 +8,8 @@
 @source inline("has-checked:text-{white,midnight-orchid}");
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    /* The whole site uses Amiri (Arabic + English); quotes keep the font their author chose */
+    --font-sans: 'Amiri', 'Noto Naskh Arabic', Georgia, serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
          /* Tuwaiq club theme */
@@ -36,7 +37,7 @@
     --color-panel: rgb(44 33 51 / 0.88);    /* Bleached Cedar */
     --color-tile: rgb(121 105 137 / 0.45);  /* Rum */
     --color-ink: #f4eef3;                   /* main text */
-    --color-ink-muted: #9fa0b1;             /* Santas Gray */
+    --color-ink-muted: #c3c3d3;             /* Santas Gray, lighter so small text is easy to read */
     --color-line: rgb(182 157 152 / 0.35);  /* Thatch */
     --color-accent: #7f626d;                /* Falcon */
     --color-on-accent: #ffffff;
@@ -56,10 +57,20 @@
     --color-on-accent: #ffffff;
 }
 
-/* Font size buttons (A- / A+) change this, and every rem size follows */
-:root[data-font='sm'] { font-size: 87.5%; }
-:root[data-font='lg'] { font-size: 112.5%; }
-:root[data-font='xl'] { font-size: 125%; }
+/* Font size buttons (A- / A+) change this, and every rem size follows.
+   Amiri looks smaller than other fonts, so the normal size is a little bigger (17px) to stay clear. */
+:root { font-size: 106.25%; }
+:root[data-font='sm'] { font-size: 93.75%; }
+:root[data-font='lg'] { font-size: 118.75%; }
+:root[data-font='xl'] { font-size: 131.25%; }
+
+/* Clearer text: smooth letters and a bit more space between lines */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    line-height: 1.6;
+}
 
 @layer components {
    .btn-primary {
@@ -382,4 +393,44 @@ a, button, label, select, summary, [role='button'], [role='switch'], [data-statu
 }
 input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='color']), textarea {
     cursor: text;
+}
+
+/* Status like button: pink with a filled heart when liked */
+[data-status-like][aria-pressed='true'] {
+    background: rgb(236 72 153 / 0.85);
+}
+[data-status-like][aria-pressed='true'] svg {
+    fill: currentColor;
+}
+
+/* Floating tooltips (made by JavaScript): never cut off by the side bars, big and easy to read */
+html.js-tips [data-tip]::after { display: none !important; }
+.floating-tip {
+    position: fixed;
+    z-index: 200;
+    max-width: 16rem;
+    border-radius: 0.6rem;
+    border: 1.5px solid #f2a54a;
+    background: #ffffff;
+    color: #2b1a57;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.35;
+    box-shadow: 0 10px 24px rgb(0 0 0 / 0.35);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 120ms ease;
+}
+.floating-tip.is-visible { opacity: 1; }
+
+/* Page background: drawn once on its own layer, so scrolling stays smooth (faster than background-attachment: fixed) */
+.site-bg { background: #10081f; }
+.site-bg::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: var(--site-bg) center / cover no-repeat;
+    pointer-events: none;
 }

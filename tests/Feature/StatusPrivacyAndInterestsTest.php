@@ -60,3 +60,15 @@ test('only copy and share can be tracked', function () {
 
     $this->actingAs(User::factory()->create())->postJson("/quotes/{$quote->id}/track", ['type' => 'hack'])->assertUnprocessable();
 });
+
+test('liking a status works even right after it was viewed, and a second click removes the like', function () {
+    $owner = User::factory()->create(['is_private' => false]);
+    $status = $owner->statuses()->create(['body' => 'Hello', 'expires_at' => now()->addDay()]);
+    $sara = User::factory()->create();
+
+    $this->actingAs($sara)->postJson("/statuses/{$status->id}/view")->assertOk();
+    $this->actingAs($sara)->postJson("/statuses/{$status->id}/like")->assertOk()->assertJson(['liked' => true]);
+    $this->actingAs($sara)->postJson("/statuses/{$status->id}/like")->assertOk()->assertJson(['liked' => false]);
+
+    expect($status->views()->count())->toBe(1);
+});

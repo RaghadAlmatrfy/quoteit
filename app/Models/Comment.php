@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Support\QuoteStyle;
 use Database\Factories\CommentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'body'])]
+#[Fillable(['user_id', 'body', 'font'])]
 class Comment extends Model
 {
     /** @use HasFactory<CommentFactory> */
@@ -22,6 +23,12 @@ class Comment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** The CSS font of the comment, or null for the site font. */
+    public function fontFamily(): ?string
+    {
+        return QuoteStyle::family($this->font);
     }
 
     /** The comment's author or the quote's owner can delete it. */

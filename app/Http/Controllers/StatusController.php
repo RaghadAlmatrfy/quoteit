@@ -50,7 +50,7 @@ class StatusController extends Controller
         abort_unless($status->isVisibleTo(Auth::user()), 403);
 
         if ($status->user_id !== Auth::id()) {
-            StatusView::firstOrCreate(['status_id' => $status->id, 'user_id' => Auth::id()]);
+            StatusView::createOrFirst(['status_id' => $status->id, 'user_id' => Auth::id()]);
         }
 
         return response()->json(['ok' => true]);
@@ -64,7 +64,8 @@ class StatusController extends Controller
         abort_unless($status->isVisibleTo(Auth::user()), 403);
         abort_if($status->user_id === Auth::id(), 422);
 
-        $view = StatusView::firstOrCreate(['status_id' => $status->id, 'user_id' => Auth::id()]);
+        // createOrFirst is safe when "I saw it" and "I liked it" arrive at the same moment
+        $view = StatusView::createOrFirst(['status_id' => $status->id, 'user_id' => Auth::id()]);
         $view->update(['liked' => ! $view->liked]);
 
         if ($view->liked) {

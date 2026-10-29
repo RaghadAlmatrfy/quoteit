@@ -694,16 +694,22 @@ if (viewer) {
         // Like button on other people's statuses
         const likeButton = viewer.querySelector('[data-status-like]');
         likeButton.hidden = !item.likeUrl;
-        likeButton.setAttribute('aria-pressed', String(item.liked));
-        likeButton.classList.toggle('bg-pink-500/70', item.liked);
+        likeButton.setAttribute('aria-pressed', String(Boolean(item.liked)));
         likeButton.onclick = async (event) => {
             event.stopPropagation();
+            // Change the heart straight away, then save it
+            const before = Boolean(item.liked);
+            item.liked = !before;
+            likeButton.setAttribute('aria-pressed', String(item.liked));
             try {
                 const response = await fetch(item.likeUrl, { method: 'POST', headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken } });
+                if (!response.ok) throw new Error(response.statusText);
                 item.liked = (await response.json()).liked;
-                likeButton.setAttribute('aria-pressed', String(item.liked));
-                likeButton.classList.toggle('bg-pink-500/70', item.liked);
-            } catch { /* ignore */ }
+            } catch {
+                item.liked = before;
+                showToast(i18n.notSaved);
+            }
+            likeButton.setAttribute('aria-pressed', String(item.liked));
         };
 
         // Who viewed / liked (only on my own statuses)
@@ -955,6 +961,7 @@ async function loadComments(box) {
         const html = await (await fetch(box.dataset.url, { headers: { Accept: 'text/html', 'X-Requested-With': 'XMLHttpRequest' } })).text();
         box.innerHTML = html;
         updateCommentCount(box);
+        setupCommentFonts(box);
     } catch {
         /* try again when opened next time */
     }
@@ -998,10 +1005,27 @@ document.addEventListener('submit', async (event) => {
         if (!response.ok) throw new Error();
         box.innerHTML = await response.text();
         updateCommentCount(box);
+        setupCommentFonts(box);
     } catch {
         form.submit();
     }
 });
+
+// The commenter picks a font: the box shows it right away, and the choice is remembered
+function setupCommentFonts(root = document) {
+    root.querySelectorAll('select[data-comment-font]').forEach((select) => {
+        const textarea = select.closest('form').querySelector('textarea');
+        const saved = storage.get('commentFont');
+        if (saved && [...select.options].some((option) => option.value === saved)) select.value = saved;
+        const apply = () => (textarea.style.fontFamily = select.selectedOptions[0]?.style.fontFamily || '');
+        apply();
+        select.onchange = () => {
+            storage.set('commentFont', select.value);
+            apply();
+        };
+    });
+}
+setupCommentFonts();
 
 // Enter sends the comment, Shift+Enter makes a new line
 document.addEventListener('keydown', (event) => {
@@ -1011,3 +1035,84 @@ document.addEventListener('keydown', (event) => {
         textarea.form.requestSubmit();
     }
 });
+
+/* ---------------------------------------------------------------
+ * 17) Tooltips that float above everything (the right bar cut them off before)
+ * ------------------------------------------------------------- */
+if (window.matchMedia('(hover: hover)').matches) {
+    document.documentElement.classList.add('js-tips');
+    const tip = Object.assign(document.createElement('div'), { className: 'floating-tip', role: 'tooltip' });
+    document.body.appendChild(tip);
+    let current = null;
+
+    const place = (target) => {
+        const box = target.getBoundingClientRect();
+        const gap = 10;
+        tip.textContent = target.dataset.tip;
+        tip.style.left = '0px';
+        tip.style.top = '0px';
+        const { width, height } = tip.getBoundingClientRect();
+        let left;
+        let top;
+        if (target.closest('.tool-rail')) {
+            left = box.left - width - gap; // the right bar: show it on the left
+            top = box.top + box.height / 2 - height / 2;
+        } else if (target.closest('.side-link, [data-side-menu]')) {
+            left = document.dir === 'rtl' ? box.left - width - gap : box.right + gap;
+            top = box.top + box.height / 2 - height / 2;
+        } else {
+            left = box.left + box.width / 2 - width / 2; // anywhere else: under the button
+            top = box.bottom + gap;
+        }
+        tip.style.left = `${Math.max(8, Math.min(left, innerWidth - width - 8))}px`;
+        tip.style.top = `${Math.max(8, Math.min(top, innerHeight - height - 8))}px`;
+        tip.classList.add('is-visible');
+    };
+    const hide = () => {
+        current = null;
+        tip.classList.remove('is-visible');
+    };
+
+    document.addEventListener('pointerover', (event) => {
+        const target = event.target.closest('[data-tip]');
+        if (target === current) return;
+        if (!target) return hide();
+        current = target;
+        place(target);
+    });
+    document.addEventListener('focusin', (event) => {
+        const target = event.target.closest('[data-tip]');
+        if (target) {
+            current = target;
+            place(target);
+        }
+    });
+    document.addEventListener('focusout', hide);
+    document.addEventListener('scroll', hide, { passive: true, capture: true });
+    document.addEventListener('pointerdown', hide);
+}
+
+/* ---------------------------------------------------------------
+ * 18) Faster page changes in browsers without "speculation rules"
+ *     (Safari, Firefox): load a page while the mouse rests on its link
+ * ------------------------------------------------------------- */
+if (!(HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules'))) {
+    const prefetched = new Set();
+    let hoverTimer;
+    const prefetch = (link) => {
+        const url = new URL(link.href, location.href);
+        if (url.origin !== location.origin || url.hash || prefetched.has(url.href)) return;
+        if (link.target === '_blank' || link.hasAttribute('data-no-prefetch') || /logout|\/locale\/|lang=/.test(url.href)) return;
+        prefetched.add(url.href);
+        document.head.appendChild(Object.assign(document.createElement('link'), { rel: 'prefetch', href: url.href }));
+    };
+    document.addEventListener('pointerover', (event) => {
+        const link = event.target.closest('a[href]');
+        clearTimeout(hoverTimer);
+        if (link) hoverTimer = setTimeout(() => prefetch(link), 80);
+    });
+    document.addEventListener('touchstart', (event) => {
+        const link = event.target.closest('a[href]');
+        if (link) prefetch(link);
+    }, { passive: true });
+}
