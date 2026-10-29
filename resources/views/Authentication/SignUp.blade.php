@@ -1,4 +1,4 @@
-@extends('Layout.AuthImg')
+{{-- The page uses the main layout; the form and the picture come from Layout.AuthImg --}}
 @extends('Layout.app')
 
 @section('title', __('Sign Up'))
@@ -52,4 +52,5 @@
         </div>
         
 @endsection
+    @include('Layout.AuthImg')
 @endsection
